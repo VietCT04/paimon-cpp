@@ -142,8 +142,7 @@ Result<VariantType> FieldCollectAgg::AggImpl(const VariantType& accumulator,
         SemanticEqual equal{element_type_};
         std::unordered_set<VariantType, SemanticHash, SemanticEqual> seen(0, hasher, equal);
         seen.reserve(total_size);
-        PAIMON_RETURN_NOT_OK(
-            AppendArrayWithHash(accumulator_array, element_type_, &seen, &values));
+        PAIMON_RETURN_NOT_OK(AppendArrayWithHash(accumulator_array, element_type_, &seen, &values));
         PAIMON_RETURN_NOT_OK(AppendArrayWithHash(input_array, element_type_, &seen, &values));
     } else {
         PAIMON_RETURN_NOT_OK(AppendArray(accumulator_array, element_type_, distinct_, &values));

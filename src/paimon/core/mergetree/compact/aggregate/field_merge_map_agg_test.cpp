@@ -112,10 +112,10 @@ TEST(FieldMergeMapAggTest, HashPathDeduplicatesAccumulatorAndPreservesOrder) {
     input_keys.emplace_back(60);
     input_values.emplace_back(2060);
 
-    ASSERT_OK_AND_ASSIGN(VariantType result,
-                         agg->Agg(IntMap(std::move(accumulator_keys),
-                                         std::move(accumulator_values)),
-                                  IntMap(std::move(input_keys), std::move(input_values))));
+    ASSERT_OK_AND_ASSIGN(
+        VariantType result,
+        agg->Agg(IntMap(std::move(accumulator_keys), std::move(accumulator_values)),
+                 IntMap(std::move(input_keys), std::move(input_values))));
     std::vector<int32_t> expected_keys;
     for (int32_t i = 0; i <= 140; ++i) {
         expected_keys.push_back(i);
@@ -130,9 +130,9 @@ TEST(FieldMergeMapAggTest, HashPathDeduplicatesAccumulatorAndPreservesOrder) {
 TEST(FieldMergeMapAggTest, HashPathUsesStringContentAndOverwrites) {
     std::vector<std::shared_ptr<arrow::DataType>> key_types{arrow::utf8(), arrow::binary()};
     for (const auto& key_type : key_types) {
-        ASSERT_OK_AND_ASSIGN(std::unique_ptr<FieldMergeMapAgg> agg,
-                             FieldMergeMapAgg::Create(arrow::map(key_type, arrow::int32()), "f",
-                                                      GetDefaultPool()));
+        ASSERT_OK_AND_ASSIGN(
+            std::unique_ptr<FieldMergeMapAgg> agg,
+            FieldMergeMapAgg::Create(arrow::map(key_type, arrow::int32()), "f", GetDefaultPool()));
         std::vector<std::string> left(100, "same-content-with-a-longer-buffer");
         std::vector<std::string> right(100, "same-content-with-a-longer-buffer");
         std::vector<VariantType> left_keys;

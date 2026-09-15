@@ -151,8 +151,8 @@ Result<VariantType> FieldMergeMapAgg::AggImpl(const VariantType& accumulator,
     if (total_size >= kHashThreshold && FieldAggregateUtils::IsHashableType(key_type_)) {
         SemanticHash hasher{key_type_};
         SemanticEqual equal{key_type_};
-        std::unordered_map<VariantType, int32_t, SemanticHash, SemanticEqual> key_index(
-            0, hasher, equal);
+        std::unordered_map<VariantType, int32_t, SemanticHash, SemanticEqual> key_index(0, hasher,
+                                                                                        equal);
         key_index.reserve(total_size);
         PAIMON_RETURN_NOT_OK(
             PutMapWithHash(accumulator_map, key_type_, value_type_, &key_index, &entries));

@@ -128,9 +128,8 @@ TEST(FieldCollectAggTest, HashPathHandlesNullsAndStringContent) {
         accumulator.emplace_back(i == 0 ? VariantType(NullType()) : VariantType(int32_t{1}));
         input.emplace_back(i == 0 ? VariantType(NullType()) : VariantType(int32_t{2}));
     }
-    ASSERT_OK_AND_ASSIGN(VariantType int_result,
-                         int_agg->Agg(IntArray(std::move(accumulator)),
-                                      IntArray(std::move(input))));
+    ASSERT_OK_AND_ASSIGN(VariantType int_result, int_agg->Agg(IntArray(std::move(accumulator)),
+                                                              IntArray(std::move(input))));
     auto int_array = DataDefine::GetVariantValue<std::shared_ptr<InternalArray>>(int_result);
     ASSERT_EQ(3, int_array->Size());
     ASSERT_TRUE(int_array->IsNullAt(0));
@@ -150,9 +149,9 @@ TEST(FieldCollectAggTest, HashPathHandlesNullsAndStringContent) {
         for (const auto& value : right) {
             right_values.emplace_back(std::string_view(value));
         }
-        ASSERT_OK_AND_ASSIGN(VariantType string_result,
-                             string_agg->Agg(IntArray(std::move(left_values)),
-                                              IntArray(std::move(right_values))));
+        ASSERT_OK_AND_ASSIGN(
+            VariantType string_result,
+            string_agg->Agg(IntArray(std::move(left_values)), IntArray(std::move(right_values))));
         auto string_array =
             DataDefine::GetVariantValue<std::shared_ptr<InternalArray>>(string_result);
         ASSERT_EQ(1, string_array->Size());
@@ -177,17 +176,15 @@ TEST(FieldCollectAggTest, HashPathPreservesFloatingPointAndTimestampSemantics) {
     auto verify_floating_point = [&](const std::shared_ptr<arrow::DataType>& type,
                                      const VariantType& negative_zero, const VariantType& nan1,
                                      const VariantType& positive_zero, const VariantType& nan2) {
-        ASSERT_OK_AND_ASSIGN(std::unique_ptr<FieldCollectAgg> agg,
-                             MakeDistinctAgg(type));
+        ASSERT_OK_AND_ASSIGN(std::unique_ptr<FieldCollectAgg> agg, MakeDistinctAgg(type));
         std::vector<VariantType> accumulator;
         std::vector<VariantType> input;
         for (int32_t i = 0; i < 100; ++i) {
             accumulator.emplace_back(i % 2 == 0 ? negative_zero : nan1);
             input.emplace_back(i % 2 == 0 ? positive_zero : nan2);
         }
-        ASSERT_OK_AND_ASSIGN(VariantType result,
-                             agg->Agg(IntArray(std::move(accumulator)),
-                                      IntArray(std::move(input))));
+        ASSERT_OK_AND_ASSIGN(VariantType result, agg->Agg(IntArray(std::move(accumulator)),
+                                                          IntArray(std::move(input))));
         auto array = DataDefine::GetVariantValue<std::shared_ptr<InternalArray>>(result);
         ASSERT_EQ(3, array->Size());
         if (type->id() == arrow::Type::FLOAT) {
@@ -215,9 +212,9 @@ TEST(FieldCollectAggTest, HashPathPreservesFloatingPointAndTimestampSemantics) {
         timestamps.emplace_back(first);
         more_timestamps.emplace_back(i == 0 ? first : second);
     }
-    ASSERT_OK_AND_ASSIGN(VariantType timestamp_result,
-                         timestamp_agg->Agg(IntArray(std::move(timestamps)),
-                                            IntArray(std::move(more_timestamps))));
+    ASSERT_OK_AND_ASSIGN(
+        VariantType timestamp_result,
+        timestamp_agg->Agg(IntArray(std::move(timestamps)), IntArray(std::move(more_timestamps))));
     auto timestamp_array =
         DataDefine::GetVariantValue<std::shared_ptr<InternalArray>>(timestamp_result);
     ASSERT_EQ(2, timestamp_array->Size());

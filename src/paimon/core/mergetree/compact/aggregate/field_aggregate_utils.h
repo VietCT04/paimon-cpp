@@ -71,8 +71,7 @@ class FieldAggregateUtils {
     /// Hash a value according to the equality semantics of its logical type.
     ///
     /// The caller must first check IsHashableType(type).
-    static size_t Hash(const VariantType& value,
-                       const std::shared_ptr<arrow::DataType>& type);
+    static size_t Hash(const VariantType& value, const std::shared_ptr<arrow::DataType>& type);
 };
 
 namespace detail {

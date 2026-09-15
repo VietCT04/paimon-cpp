@@ -288,7 +288,7 @@ bool FieldAggregateUtils::IsHashableType(const std::shared_ptr<arrow::DataType>&
 }
 
 size_t FieldAggregateUtils::Hash(const VariantType& value,
-                                  const std::shared_ptr<arrow::DataType>& type) {
+                                 const std::shared_ptr<arrow::DataType>& type) {
     assert(IsHashableType(type));
     size_t result = std::hash<int>{}(static_cast<int>(type->id()));
     if (DataDefine::IsVariantNull(value)) {
@@ -300,15 +300,15 @@ size_t FieldAggregateUtils::Hash(const VariantType& value,
         case arrow::Type::INT8:
             return CombineHash(result, std::hash<char>{}(DataDefine::GetVariantValue<char>(value)));
         case arrow::Type::INT16:
-            return CombineHash(
-                result, std::hash<int16_t>{}(DataDefine::GetVariantValue<int16_t>(value)));
+            return CombineHash(result,
+                               std::hash<int16_t>{}(DataDefine::GetVariantValue<int16_t>(value)));
         case arrow::Type::INT32:
         case arrow::Type::DATE32:
-            return CombineHash(
-                result, std::hash<int32_t>{}(DataDefine::GetVariantValue<int32_t>(value)));
+            return CombineHash(result,
+                               std::hash<int32_t>{}(DataDefine::GetVariantValue<int32_t>(value)));
         case arrow::Type::INT64:
-            return CombineHash(
-                result, std::hash<int64_t>{}(DataDefine::GetVariantValue<int64_t>(value)));
+            return CombineHash(result,
+                               std::hash<int64_t>{}(DataDefine::GetVariantValue<int64_t>(value)));
         case arrow::Type::FLOAT:
             return CombineHash(result,
                                HashFloatingPoint(DataDefine::GetVariantValue<float>(value)));
