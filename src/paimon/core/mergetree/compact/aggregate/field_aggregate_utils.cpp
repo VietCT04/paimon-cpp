@@ -20,12 +20,10 @@
 #include "paimon/core/mergetree/compact/aggregate/field_aggregate_utils.h"
 
 #include <cassert>
-#include <cmath>
 #include <cstdint>
 #include <cstring>
 #include <functional>
 #include <string_view>
-#include <type_traits>
 #include <utility>
 #include <vector>
 
@@ -39,6 +37,7 @@
 #include "paimon/common/utils/checked_cast.h"
 #include "paimon/common/utils/date_time_utils.h"
 #include "paimon/common/utils/fields_comparator.h"
+#include "paimon/common/utils/math.h"
 #include "paimon/memory/bytes.h"
 #include "paimon/memory/memory_pool.h"
 #include "paimon/status.h"
@@ -130,21 +129,6 @@ Result<bool> EqualMaps(const std::shared_ptr<InternalMap>& lhs,
 
 size_t CombineHash(size_t lhs, size_t rhs) {
     return lhs ^ (rhs + static_cast<size_t>(0x9e3779b97f4a7c15ULL) + (lhs << 6) + (lhs >> 2));
-}
-
-template <typename T>
-size_t HashFloatingPoint(T value) {
-    using Bits = std::conditional_t<sizeof(T) == sizeof(uint32_t), uint32_t, uint64_t>;
-    Bits bits;
-    std::memcpy(&bits, &value, sizeof(value));
-    if (std::isnan(value)) {
-        if constexpr (sizeof(T) == sizeof(uint32_t)) {
-            bits = static_cast<Bits>(0x7fc00000U);
-        } else {
-            bits = static_cast<Bits>(0x7ff8000000000000ULL);
-        }
-    }
-    return std::hash<Bits>{}(bits);
 }
 
 }  // namespace
@@ -310,11 +294,11 @@ size_t FieldAggregateUtils::Hash(const VariantType& value,
             return CombineHash(result,
                                std::hash<int64_t>{}(DataDefine::GetVariantValue<int64_t>(value)));
         case arrow::Type::FLOAT:
-            return CombineHash(result,
-                               HashFloatingPoint(DataDefine::GetVariantValue<float>(value)));
+            return CombineHash(result, std::hash<int32_t>{}(CanonicalizeFloatToIntBits(
+                                           DataDefine::GetVariantValue<float>(value))));
         case arrow::Type::DOUBLE:
-            return CombineHash(result,
-                               HashFloatingPoint(DataDefine::GetVariantValue<double>(value)));
+            return CombineHash(result, std::hash<int64_t>{}(CanonicalizeDoubleToLongBits(
+                                           DataDefine::GetVariantValue<double>(value))));
         case arrow::Type::STRING:
         case arrow::Type::BINARY:
             return CombineHash(result,
