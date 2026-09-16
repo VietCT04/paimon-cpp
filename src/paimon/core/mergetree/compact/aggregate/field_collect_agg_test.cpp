@@ -64,9 +64,16 @@ Result<std::unique_ptr<FieldCollectAgg>> MakeCollectAgg(bool distinct) {
 }
 
 Result<std::unique_ptr<FieldCollectAgg>> MakeDistinctAgg(
-    const std::shared_ptr<arrow::DataType>& element_type);
+    const std::shared_ptr<arrow::DataType>& element_type) {
+    PAIMON_ASSIGN_OR_RAISE(CoreOptions options,
+                           CoreOptions::FromMap({{"fields.f.distinct", "true"}}));
+    return FieldCollectAgg::Create(arrow::list(element_type), options, "f", GetDefaultPool());
+}
 
-VariantType Array(std::vector<VariantType> values);
+VariantType Array(std::vector<VariantType> values) {
+    return VariantType(
+        checked_pointer_cast<InternalArray>(std::make_shared<GenericArray>(std::move(values))));
+}
 
 }  // namespace
 
@@ -270,18 +277,6 @@ TEST(FieldCollectAggTest, RejectsNonArrayType) {
 // Ported from Java FieldAggregatorTest#testFiledCollectAggWith{Row,Array,Map}Type: distinct
 // collection over composite element types.
 namespace {
-
-Result<std::unique_ptr<FieldCollectAgg>> MakeDistinctAgg(
-    const std::shared_ptr<arrow::DataType>& element_type) {
-    PAIMON_ASSIGN_OR_RAISE(CoreOptions options,
-                           CoreOptions::FromMap({{"fields.f.distinct", "true"}}));
-    return FieldCollectAgg::Create(arrow::list(element_type), options, "f", GetDefaultPool());
-}
-
-VariantType Array(std::vector<VariantType> values) {
-    return VariantType(
-        checked_pointer_cast<InternalArray>(std::make_shared<GenericArray>(std::move(values))));
-}
 
 VariantType IntStringRow(int32_t id, std::string_view name) {
     std::shared_ptr<GenericRow> row = std::make_shared<GenericRow>(2);

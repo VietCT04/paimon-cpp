@@ -89,7 +89,7 @@ Status PutMapWithHash(
         if (iter != key_index->end()) {
             entries->at(iter->second).value = std::move(value);
         } else {
-            int32_t new_index = static_cast<int32_t>(entries->size());
+            auto new_index = static_cast<int32_t>(entries->size());
             entries->push_back(MapEntry{std::move(key), std::move(value)});
             key_index->emplace(entries->back().key, new_index);
         }

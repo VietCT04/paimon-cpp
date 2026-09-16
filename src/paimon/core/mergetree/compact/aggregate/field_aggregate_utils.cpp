@@ -274,7 +274,7 @@ bool FieldAggregateUtils::IsHashableType(const std::shared_ptr<arrow::DataType>&
 size_t FieldAggregateUtils::Hash(const VariantType& value,
                                  const std::shared_ptr<arrow::DataType>& type) {
     assert(IsHashableType(type));
-    size_t result = std::hash<int>{}(static_cast<int>(type->id()));
+    size_t result = std::hash<int32_t>{}(static_cast<int32_t>(type->id()));
     if (DataDefine::IsVariantNull(value)) {
         return result;
     }
